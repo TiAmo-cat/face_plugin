@@ -1,9 +1,9 @@
 name: face_plugin
 description: Face detection and feature extraction plugin using MobileFaceNet for Android and iOS. Provides 128-dimensional face feature vectors for face recognition and comparison.
 version: 0.0.1
-homepage: https://github.com/yourusername/face_plugin
-repository: https://github.com/yourusername/face_plugin
-issue_tracker: https://github.com/yourusername/face_plugin/issues
+homepage: https://github.com/TiAmo-cat/face_plugin
+repository: https://github.com/TiAmo-cat/face_plugin
+issue_tracker: https://github.com/TiAmo-cat/face_plugin/issues
 
 environment:
   sdk: ^3.6.0
