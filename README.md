@@ -8,6 +8,17 @@ A Flutter plugin for **face detection** and **face feature extraction** on Andro
 
 ---
 
+## Requirements
+
+| Requirement | Minimum |
+|-------------|---------|
+| Flutter     | 3.3.0   |
+| Dart SDK    | 3.0.0   |
+| Android     | API 21 (Android 5.0) |
+| iOS         | 12.0    |
+
+---
+
 ## Platform Support
 
 | Platform | Detection Engine        | Min Version |
