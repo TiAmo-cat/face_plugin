@@ -163,7 +163,8 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
                         title: Text('Face ${index + 1}'),
                         subtitle: Text(
                           'Position: (${face.faceX.toInt()}, ${face.faceY.toInt()}), '
-                          'Score: ${face.faceScore.toStringAsFixed(2)}',
+                                                 'Score: ${face.faceScore.toStringAsFixed(2)}  '
+                                                 'Landmarks: ${face.landmarkCount}/5',
                         ),
                         children: [
                           Padding(
@@ -175,8 +176,16 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
                                 Text('  X: ${face.faceX.toStringAsFixed(1)}'),
                                 Text('  Y: ${face.faceY.toStringAsFixed(1)}'),
                                 Text('  Width: ${face.bboxW.toStringAsFixed(1)}'),
-                                Text('  Height: ${face.bboxH.toStringAsFixed(1)}'),
-                                const SizedBox(height: 8),
+                                                 Text('  Height: ${face.bboxH.toStringAsFixed(1)}'),
+                                                 const SizedBox(height: 8),
+                                                 Text('Quality:'),
+                                                 Text('  Landmarks detected: ${face.landmarkCount}/5'
+                                                     '${face.landmarkCount < 3 ? "  ⚠️ low quality" : ""}'),
+                                                 Text('  Score: ${face.faceScore.toStringAsFixed(2)}'),
+                                                 Text('  Head angles — X: ${face.headEulerAngleX.toStringAsFixed(1)}°'
+                                                     '  Y: ${face.headEulerAngleY.toStringAsFixed(1)}°'
+                                                     '  Z: ${face.headEulerAngleZ.toStringAsFixed(1)}°'),
+                                                 const SizedBox(height: 8),
                                 Text('Landmarks:'),
                                 Text('  Right Eye: (${face.reyeX.toInt()}, ${face.reyeY.toInt()})'),
                                 Text('  Left Eye: (${face.leyeX.toInt()}, ${face.leyeY.toInt()})'),
