@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.3] - 2026-05-12
+
+### Added
+- **L2 normalization** for feature vectors on both Android and iOS platforms.
+  Ensures cosine similarity equals dot product for accurate face comparison.
+- **Head pose angles** (`headEulerAngleX/Y/Z`) support on iOS via Vision Framework.
+  Now consistent with Android — enables cross-platform quality filtering.
+- **Advanced utility classes** documented in README:
+  - `FaceHelper` — best face selection with center/area/score weighting
+  - `FaceTracker` — consecutive-frame confirmation to filter transient false positives
+  - Quality filtering examples using `landmarkCount` and head angles
+
+### Changed
+- **Android**: Removed background thread execution for ML Kit detection.
+  Simplified threading model — ML Kit handles async internally.
+- **Android**: Disabled `enableTracking()` to prevent "ghost detection" issue
+  where faces persist after leaving the frame.
+- **Android**: Raised `minFaceSize` from 0.15 to 0.20 to reduce small noise detections.
+- **iOS**: Fixed coordinate system to use `image.size` instead of `cgImage` dimensions.
+- **iOS**: Improved `landmarkCount` calculation accuracy for better quality signals.
+- **iOS**: Simplified model loading — removed redundant asset lookup fallback.
+- **iOS**: `faceScore` now uses `observation.confidence` directly (more reliable).
+- Updated README with comprehensive production-ready examples and iOS BGRA→JPEG guide.
+
+### Fixed
+- Feature vector normalization ensures consistent similarity scores across platforms.
+- iOS head angle availability check for iOS 16+ pitch support.
+- Documentation clarity: removed intermediate dev files, consolidated into single README.
+
+---
+
 ## [0.0.2] - 2026-04-24
 
 ### Added

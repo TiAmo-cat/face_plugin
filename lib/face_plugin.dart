@@ -2,9 +2,6 @@ import 'dart:typed_data';
 import 'face_plugin_platform_interface.dart';
 
 /// Face detection and feature extraction result
-///
-/// Coordinate system: origin (0,0) at top-left of image, X→right, Y→down.
-/// [faceX], [faceY] = top-left corner of the bounding box (pixels).
 class Face {
   final double faceX;
   final double faceY;
@@ -29,14 +26,13 @@ class Face {
   final int faceTv;
   final int clsId;
 
-  /// Number of landmarks actually detected by ML Kit (0–5).
-  /// Covers: leftEye, rightEye, noseBase, leftMouth, rightMouth.
-  /// A low value (0–1) is a strong indicator of a false-positive detection.
+  /// Number of landmarks actually detected by ML Kit (0-5).
+  /// 5 = leftEye, rightEye, noseBase, leftMouth, rightMouth all detected.
+  /// Low count (0-1) strongly indicates a false positive detection.
   final int landmarkCount;
 
-  /// Head rotation angles reported by ML Kit (degrees).
-  /// Useful for quality checks — extreme values may indicate a non-frontal or
-  /// low-quality face crop before feeding into MobileFaceNet.
+  /// Head rotation angles from ML Kit (in degrees).
+  /// Useful for quality assessment — extreme angles may indicate false positives.
   final double headEulerAngleX;
   final double headEulerAngleY;
   final double headEulerAngleZ;
@@ -61,7 +57,7 @@ class Face {
     required this.faceScore,
     required this.faceTv,
     required this.clsId,
-    this.landmarkCount = 5,
+    this.landmarkCount = 0,
     this.headEulerAngleX = 0.0,
     this.headEulerAngleY = 0.0,
     this.headEulerAngleZ = 0.0,
@@ -88,7 +84,7 @@ class Face {
       faceScore: (map['faceScore'] as num).toDouble(),
       faceTv: (map['faceTv'] as int?) ?? -1,
       clsId: map['clsId'] as int,
-      landmarkCount: (map['landmarkCount'] as int?) ?? 5,
+      landmarkCount: (map['landmarkCount'] as int?) ?? 0,
       headEulerAngleX: (map['headEulerAngleX'] as num?)?.toDouble() ?? 0.0,
       headEulerAngleY: (map['headEulerAngleY'] as num?)?.toDouble() ?? 0.0,
       headEulerAngleZ: (map['headEulerAngleZ'] as num?)?.toDouble() ?? 0.0,
@@ -124,19 +120,16 @@ class Face {
   }
 }
 
-/// FacePlugin — Face detection (ML Kit) + feature extraction (MobileFaceNet).
+/// FacePlugin - Face detection and feature extraction
 class FacePlugin {
-  /// Detect all faces in the image.
-  /// Returns a list of [Face] objects containing bounding boxes, landmarks,
-  /// quality signals ([landmarkCount], [Face.faceScore]) and head angles.
+  /// Detect all faces in the image
+  /// Returns a list of Face objects containing bounding boxes and landmarks
   static Future<List<Face>> detectFaces(Uint8List imageBytes) async {
     return await FacePluginPlatform.instance.detectFaces(imageBytes);
   }
 
-  /// Extract feature vectors for each detected face.
-  /// Returns a [List<List<double>>] where each inner list is the MobileFaceNet
-  /// embedding for the corresponding face in [detectFaces] order.
-  /// The vector length equals the model's output dimension (typically 192).
+  /// Extract 128-dimensional feature vectors for each detected face
+  /// Returns a list of feature vectors, indexed corresponding to detectFaces results
   static Future<List<List<double>>> extractFeatures(Uint8List imageBytes) async {
     return await FacePluginPlatform.instance.extractFeatures(imageBytes);
   }

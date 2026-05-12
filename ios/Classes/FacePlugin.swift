@@ -67,29 +67,6 @@ public class FacePlugin: NSObject, FlutterPlugin {
             }
         }
 
-        // Fallback: lookup via registrar key
-        let key = registrar.lookupKey(forAsset: "packages/face_plugin/assets/mobilefacenet.tflite")
-        if let modelPath = Bundle.main.path(forResource: key, ofType: nil) {
-            do {
-                interpreter = try Interpreter(modelPath: modelPath)
-                try interpreter?.allocateTensors()
-
-                // Auto-detect feature dimension from model output
-                if let outputTensor = try? interpreter?.output(at: 0) {
-                    let shape = outputTensor.shape.dimensions
-                    if shape.count >= 2 {
-                        featureDim = shape[1]
-                        print("Model loaded successfully from asset lookup")
-                        print("Model output shape: \(shape)")
-                        print("Feature dimension: \(featureDim)")
-                    }
-                }
-                return
-            } catch {
-                print("Failed to load model from asset lookup: \(error)")
-            }
-        }
-
         print("ERROR: Model file 'mobilefacenet.tflite' not found in any bundle")
     }
 
@@ -158,8 +135,8 @@ public class FacePlugin: NSObject, FlutterPlugin {
             }
 
             let faces = self.convertVisionFacesToMap(observations: observations,
-                                                     imageWidth: CGFloat(cgImage.width),
-                                                     imageHeight: CGFloat(cgImage.height))
+                                                     imageWidth: image.size.width,
+                                                     imageHeight: image.size.height)
             completion(faces)
         }
 
@@ -180,66 +157,73 @@ public class FacePlugin: NSObject, FlutterPlugin {
 
             // Convert normalized coordinates to pixel coordinates
             let boundingBox = observation.boundingBox
-            let x = Double(boundingBox.origin.x * imageWidth)
-            let y = Double((1 - boundingBox.origin.y - boundingBox.height) * imageHeight)
-            let width = Double(boundingBox.width * imageWidth)
-            let height = Double(boundingBox.height * imageHeight)
+            let x = boundingBox.origin.x * imageWidth
+            let y = (1 - boundingBox.origin.y - boundingBox.height) * imageHeight // Flip Y axis
+            let width = boundingBox.width * imageWidth
+            let height = boundingBox.height * imageHeight
 
             face["faceX"] = x
             face["faceY"] = y
             face["bboxW"] = width
             face["bboxH"] = height
 
+            func toImagePoint(_ point: CGPoint) -> (x: CGFloat, y: CGFloat) {
+                (
+                    x: x + point.x * width,
+                    y: y + (1.0 - point.y) * height
+                )
+            }
+
             var landmarkCount = 0
 
             // Extract landmarks if available
             if let landmarks = observation.landmarks {
-                // Vision normalizedPoints 是相对于人脸 boundingBox 的坐标
-                // 需要转换为图像像素坐标
-
-                if let rightEye = landmarks.rightEye, let point = rightEye.normalizedPoints.first {
-                    let imgX = Double((boundingBox.origin.x + point.x * boundingBox.width) * imageWidth)
-                    let imgY = Double((1 - (boundingBox.origin.y + point.y * boundingBox.height)) * imageHeight)
-                    face["reyeX"] = imgX
-                    face["reyeY"] = imgY
+                // Right eye (from image perspective)
+                if let rightEye = landmarks.rightEye {
                     landmarkCount += 1
+                    let point = toImagePoint(rightEye.normalizedPoints.first ?? CGPoint.zero)
+                    face["reyeX"] = point.x
+                    face["reyeY"] = point.y
                 } else {
                     face["reyeX"] = x + width * 0.3
                     face["reyeY"] = y + height * 0.35
                 }
 
-                if let leftEye = landmarks.leftEye, let point = leftEye.normalizedPoints.first {
-                    let imgX = Double((boundingBox.origin.x + point.x * boundingBox.width) * imageWidth)
-                    let imgY = Double((1 - (boundingBox.origin.y + point.y * boundingBox.height)) * imageHeight)
-                    face["leyeX"] = imgX
-                    face["leyeY"] = imgY
+                // Left eye (from image perspective)
+                if let leftEye = landmarks.leftEye {
                     landmarkCount += 1
+                    let point = toImagePoint(leftEye.normalizedPoints.first ?? CGPoint.zero)
+                    face["leyeX"] = point.x
+                    face["leyeY"] = point.y
                 } else {
                     face["leyeX"] = x + width * 0.7
                     face["leyeY"] = y + height * 0.35
                 }
 
-                if let nose = landmarks.nose, let point = nose.normalizedPoints.first {
-                    let imgX = Double((boundingBox.origin.x + point.x * boundingBox.width) * imageWidth)
-                    let imgY = Double((1 - (boundingBox.origin.y + point.y * boundingBox.height)) * imageHeight)
-                    face["noseX"] = imgX
-                    face["noseY"] = imgY
+                // Nose
+                if let nose = landmarks.nose {
                     landmarkCount += 1
+                    let point = toImagePoint(nose.normalizedPoints.first ?? CGPoint.zero)
+                    face["noseX"] = point.x
+                    face["noseY"] = point.y
                 } else {
                     face["noseX"] = x + width * 0.5
                     face["noseY"] = y + height * 0.5
                 }
 
+                // Mouth
                 if let outerLips = landmarks.outerLips {
                     let points = outerLips.normalizedPoints
                     if points.count >= 2 {
-                        let rightPoint = points[0]
-                        face["rmouthX"] = Double((boundingBox.origin.x + rightPoint.x * boundingBox.width) * imageWidth)
-                        face["rmouthY"] = Double((1 - (boundingBox.origin.y + rightPoint.y * boundingBox.height)) * imageHeight)
-                        let leftPoint = points[points.count / 2]
-                        face["lmouthX"] = Double((boundingBox.origin.x + leftPoint.x * boundingBox.width) * imageWidth)
-                        face["lmouthY"] = Double((1 - (boundingBox.origin.y + leftPoint.y * boundingBox.height)) * imageHeight)
                         landmarkCount += 2
+                        let rightPoint = points.min(by: { $0.x < $1.x }) ?? .zero
+                        let leftPoint = points.max(by: { $0.x < $1.x }) ?? .zero
+                        let rightMouth = toImagePoint(rightPoint)
+                        let leftMouth = toImagePoint(leftPoint)
+                        face["rmouthX"] = rightMouth.x
+                        face["rmouthY"] = rightMouth.y
+                        face["lmouthX"] = leftMouth.x
+                        face["lmouthY"] = leftMouth.y
                     } else {
                         face["rmouthX"] = x + width * 0.35
                         face["rmouthY"] = y + height * 0.75
@@ -266,12 +250,28 @@ public class FacePlugin: NSObject, FlutterPlugin {
                 face["lmouthY"] = y + height * 0.75
             }
 
-            face["width"] = Double(imageWidth)
-            face["height"] = Double(imageHeight)
-            face["faceScore"] = Double(landmarkCount) / 5.0
-            face["faceTv"] = -1
-            face["clsId"] = 0
             face["landmarkCount"] = landmarkCount
+
+            face["width"] = imageWidth
+            face["height"] = imageHeight
+            face["faceScore"] = observation.confidence
+            face["faceTv"] = 1
+            face["clsId"] = 0
+
+            // Head Euler angles from Vision framework (available iOS 12+)
+            // yaw:   left/right rotation  (matches Android headEulerAngleY)
+            // roll:  tilt rotation        (matches Android headEulerAngleZ)
+            // pitch: up/down rotation     (matches Android headEulerAngleX)
+            let yawDegrees   = observation.yaw.map   { Double(truncating: $0) * 180.0 / .pi } ?? 0.0
+            let rollDegrees  = observation.roll.map  { Double(truncating: $0) * 180.0 / .pi } ?? 0.0
+            // VNFaceObservation.pitch is available from iOS 16; guard with availability
+            var pitchDegrees = 0.0
+            if #available(iOS 16.0, *) {
+                pitchDegrees = observation.pitch.map { Double(truncating: $0) * 180.0 / .pi } ?? 0.0
+            }
+            face["headEulerAngleX"] = pitchDegrees
+            face["headEulerAngleY"] = yawDegrees
+            face["headEulerAngleZ"] = rollDegrees
 
             faces.append(face)
         }
@@ -299,46 +299,66 @@ public class FacePlugin: NSObject, FlutterPlugin {
                 continue
             }
 
+            // Expand bounding box slightly
             let padding = max(bboxW, bboxH) * 0.2
             let left = max(0, Int(faceX - padding))
             let top = max(0, Int(faceY - padding))
             let right = min(cgImage.width, Int(faceX + bboxW + padding))
             let bottom = min(cgImage.height, Int(faceY + bboxH + padding))
 
-            let cropW = right - left
-            let cropH = bottom - top
+            let width = right - left
+            let height = bottom - top
 
-            if cropW <= 0 || cropH <= 0 {
+            if width <= 0 || height <= 0 {
                 continue
             }
 
-            let cropRect = CGRect(x: left, y: top, width: cropW, height: cropH)
+            // Crop face region
+            let cropRect = CGRect(x: left, y: top, width: width, height: height)
             guard let croppedCGImage = cgImage.cropping(to: cropRect) else {
                 continue
             }
 
-            guard let inputData = preprocessCGImage(croppedCGImage) else {
+            let croppedImage = UIImage(cgImage: croppedCGImage)
+
+            // Resize and extract features
+            guard let resizedImage = croppedImage.resized(to: CGSize(width: inputSize, height: inputSize)),
+                  let inputData = preprocessImage(resizedImage) else {
                 continue
             }
 
             do {
-                try interpreter.allocateTensors()
+                // Copy input data to interpreter
                 try interpreter.copy(inputData, toInputAt: 0)
+
+                // Run inference
                 try interpreter.invoke()
 
+                // Get output
                 let outputTensor = try interpreter.output(at: 0)
                 let outputData = outputTensor.data
 
-                let floatArray = outputData.withUnsafeBytes { (pointer: UnsafeRawBufferPointer) -> [Float] in
+                // Convert to Float array
+                var floatArray = outputData.withUnsafeBytes { (pointer: UnsafeRawBufferPointer) -> [Float] in
                     let buffer = pointer.bindMemory(to: Float.self)
                     return Array(buffer)
+                }
+
+                // L2 normalization — required so cosine similarity equals dot product
+                var norm: Float = 0
+                for i in 0..<min(featureDim, floatArray.count) { norm += floatArray[i] * floatArray[i] }
+                norm = sqrt(norm)
+                if norm > 1e-6 {
+                    for i in 0..<min(featureDim, floatArray.count) { floatArray[i] /= norm }
                 }
 
                 var feature: [Double] = []
                 for i in 0..<min(featureDim, floatArray.count) {
                     feature.append(Double(floatArray[i]))
                 }
+
                 features.append(feature)
+
             } catch {
                 print("Failed to run inference for face: \(error)")
             }
@@ -347,8 +367,9 @@ public class FacePlugin: NSObject, FlutterPlugin {
         return features
     }
 
-    /// 直接从 CGImage 预处理为 TFLite 输入数据，跳过 UIImage 中间步骤
-    private func preprocessCGImage(_ cgImage: CGImage) -> Data? {
+    private func preprocessImage(_ image: UIImage) -> Data? {
+        guard let cgImage = image.cgImage else { return nil }
+
         let width = inputSize
         let height = inputSize
         let bytesPerPixel = 4
@@ -371,6 +392,7 @@ public class FacePlugin: NSObject, FlutterPlugin {
 
         context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
 
+        // Convert to normalized float values
         var floatValues = [Float](repeating: 0, count: width * height * 3)
 
         for i in 0..<(width * height) {
