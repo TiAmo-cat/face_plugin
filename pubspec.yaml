@@ -1,13 +1,13 @@
 name: face_plugin
-description: Face detection and feature extraction plugin using MobileFaceNet for Android and iOS. Provides 128-dimensional face feature vectors for face recognition and comparison.
-version: 0.0.3
+description: Face detection and feature extraction plugin using MobileFaceNet for Android and iOS. Provides face feature vectors (128/192 dims, auto-detected from model) for face recognition and comparison.
+version: 0.0.4
 homepage: https://github.com/TiAmo-cat/face_plugin
 repository: https://github.com/TiAmo-cat/face_plugin
 issue_tracker: https://github.com/TiAmo-cat/face_plugin/issues
 
 environment:
-  sdk: ^3.6.0
-  flutter: '>=3.3.0'
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.10.0'
 
 dependencies:
   flutter:
@@ -17,7 +17,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^4.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

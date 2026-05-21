@@ -95,7 +95,7 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'This plugin detects faces and extracts 128-dimensional feature vectors using MobileFaceNet.',
+                      'This plugin detects faces and extracts feature vectors (128/192 dims) using MobileFaceNet.',
                     ),
                   ],
                 ),

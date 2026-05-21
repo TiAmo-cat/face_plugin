@@ -4,7 +4,6 @@ version = "1.0-SNAPSHOT"
 buildscript {
     repositories {
         google()
-        maven { url "https://maven.aliyun.com/repository/google" }
         mavenCentral()
     }
 
@@ -16,7 +15,6 @@ buildscript {
 allprojects {
     repositories {
         google()
-        maven { url "https://maven.aliyun.com/repository/google" }
         mavenCentral()
     }
 }
@@ -26,7 +24,7 @@ apply plugin: "com.android.library"
 android {
     namespace = "com.example.face_plugin"
 
-    compileSdk = 35
+    compileSdk = 34
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

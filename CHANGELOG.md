@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.4] - 2026-05-21
+
+### Changed
+- **Relaxed SDK constraints**: lowered Flutter requirement from `>=3.3.0` (effectively 3.27.x due to `sdk: ^3.6.0`) to `>=3.10.0`, Dart SDK from `^3.6.0` to `>=3.0.0 <4.0.0`. The plugin has no Dart 3.x exclusive syntax, so projects using Flutter 3.10+ can now use `face_plugin` without forced upgrade.
+- Synchronized `ios/face_plugin.podspec` version to `0.0.4`.
+- Lowered `flutter_lints` from `^5.0.0` to `^4.0.0` for Dart 3.0+ compatibility.
+- Lowered `compileSdk` from 35 to 34 for broader Flutter version support.
+- Raised example app Java compatibility from 1.8 to 11 to match plugin.
+
+### Fixed
+- `pubspec.yaml` Dart SDK constraint no longer conflicts with the Flutter version constraint.
+- Enabled `PrivacyInfo.xcprivacy` in podspec for Apple privacy manifest compliance.
+- Removed hardcoded HTTP proxy settings from example `gradle.properties`.
+- Removed aliyun Maven mirrors from Gradle repositories for global compatibility.
+- Added Podfile to example iOS project so `pod install` works out of the box.
+- Removed stale unit tests that tested removed `getPlatformVersion` API.
+
+---
+
 ## [0.0.3] - 2026-05-12
 
 ### Added

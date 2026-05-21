@@ -1,25 +1,13 @@
 # Example Assets
 
-Place a sample face image here for testing the plugin.
+Contains `sample_face.jpg` — a test image used by the example app.
 
-## Required Files
+## Replacing the Test Image
 
-- `sample_face.jpg` - A test image containing a face
-
-You can use any face image for testing. Make sure it's a clear, front-facing portrait for best results.
-
-## Image Requirements
-
+You can replace it with any face image:
 - Format: JPG, PNG
 - Resolution: Any (will be resized to 112x112 for feature extraction)
-- Content: Should contain at least one clear face
+- Content: Should contain at least one clear, front-facing face
 
-## Usage
-
-The example app will load this image when you press the "Test Face Detection" button.
-
-If you don't have this file, you can:
-1. Add your own test image here
-2. Modify the example app to use image_picker instead
-3. Use a different asset path
+The example app loads this image when you tap the "Test Face Detection" button.
 

@@ -128,7 +128,7 @@ class FacePlugin {
     return await FacePluginPlatform.instance.detectFaces(imageBytes);
   }
 
-  /// Extract 128-dimensional feature vectors for each detected face
+  /// Extract feature vectors for each detected face (128 or 192 dims, auto-detected from model)
   /// Returns a list of feature vectors, indexed corresponding to detectFaces results
   static Future<List<List<double>>> extractFeatures(Uint8List imageBytes) async {
     return await FacePluginPlatform.instance.extractFeatures(imageBytes);

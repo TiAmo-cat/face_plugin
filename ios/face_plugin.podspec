@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'face_plugin'
-  s.version          = '0.0.1'
+  s.version          = '0.0.4'
   s.summary          = 'A new Flutter plugin project.'
   s.description      = <<-DESC
 A new Flutter plugin project.
@@ -29,5 +29,5 @@ A new Flutter plugin project.
   # required reason APIs, update the PrivacyInfo.xcprivacy file to describe your
   # plugin's privacy impact, and then uncomment this line. For more information,
   # see https://developer.apple.com/documentation/bundleresources/privacy_manifest_files
-  # s.resource_bundles = {'face_plugin_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
+  s.resource_bundles = {'face_plugin_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
 end

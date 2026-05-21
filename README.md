@@ -4,7 +4,7 @@ A Flutter plugin for **face detection** and **face feature extraction** on Andro
 
 - **Detection** — Google ML Kit (Android) / Apple Vision (iOS)
 - **Feature extraction** — MobileFaceNet TFLite model (bundled, no download required)
-- **Output** — bounding box, 5-point landmarks, 192-dim feature vector, quality signals
+- **Output** — bounding box, 5-point landmarks, 128/192-dim feature vector (auto-detected from model), quality signals
 
 ---
 
@@ -12,7 +12,7 @@ A Flutter plugin for **face detection** and **face feature extraction** on Andro
 
 | Requirement | Minimum |
 |-------------|---------|
-| Flutter     | 3.3.0   |
+| Flutter     | 3.10.0  |
 | Dart SDK    | 3.0.0   |
 | Android     | API 21 (Android 5.0) |
 | iOS         | 12.0    |
@@ -32,7 +32,7 @@ A Flutter plugin for **face detection** and **face feature extraction** on Andro
 
 ```yaml
 dependencies:
-  face_plugin: ^0.0.2
+  face_plugin: ^0.0.4
 ```
 
 ### Android
@@ -216,8 +216,8 @@ Future<void> run(Uint8List jpeg) async {
 
 ## Advanced — FaceHelper & FaceTracker
 
-For production use (continuous camera frames) the library ships with a ready-to-copy
-utility that adds **two-layer false-positive filtering**:
+For production use (continuous camera frames) you can use the following ready-to-copy
+utilities that adds **two-layer false-positive filtering**:
 
 1. **`landmarkCount` gate** — drops detections with fewer than 2 real landmarks
 2. **`FaceTracker`** — requires a `trackingId` to appear in ≥ 2 consecutive frames before

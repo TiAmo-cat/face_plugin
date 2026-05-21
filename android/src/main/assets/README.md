@@ -1,16 +1,16 @@
 # MobileFaceNet Model
 
-Please place your `mobilefacenet.tflite` model file in this directory.
+The `mobilefacenet.tflite` model file is bundled with the plugin.
 
-## Model Requirements
+## Model Specifications
 
 - **Input**: 112x112x3 (RGB image)
-- **Output**: 128-dimensional feature vector
+- **Output**: 128 or 192-dimensional feature vector (auto-detected from model)
 - **Preprocessing**: (pixel - 127.5) / 128.0
 
-## Where to get the model
+## Replacing the Model
 
-You can convert a MobileFaceNet model to TFLite format or download a pre-trained one.
+You can replace this with another MobileFaceNet-compatible TFLite model.
 
 Example sources:
 - https://github.com/sirius-ai/MobileFaceNet_TF
